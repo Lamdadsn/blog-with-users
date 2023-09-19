@@ -13,10 +13,9 @@ from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
 import smtplib
 import os
 
-my_email = "4.snewy.coding@gmail.com"
+send_email = os.environ.get('SEND_EMAIL')
 my_password = os.environ.get('EMAIL_APP_PWD')       # remember to allow app to send mail within mail acct security
-blog_email = "for.snewycoding@yahoo.com"
-
+receive_email = os.environ.get('RCV_EMAIL')
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
@@ -39,7 +38,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 # CONNECT TO DB
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DB_URI')
 db = SQLAlchemy()
 db.init_app(app)
 
@@ -277,10 +276,10 @@ def contact():
         print(f'{usr_name}\n{usr_email}\n{usr_phone}\n{usr_msg}')
         with smtplib.SMTP("smtp.gmail.com") as connection:
             connection.starttls()  # start tls (translate layer security)
-            connection.login(user=my_email, password=my_password)
+            connection.login(user=send_email, password=my_password)
             connection.sendmail(
-                from_addr=my_email,
-                to_addrs=blog_email,
+                from_addr=send_email,
+                to_addrs=receive_email,
                 msg=f"Subject:New Contact Request\n\n"
                     f"Name:    {usr_name}\n"
                     f"Email:   {usr_email}\n"
@@ -294,4 +293,4 @@ def contact():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5002)
+    app.run(debug=False, port=5002)
